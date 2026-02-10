@@ -37,6 +37,7 @@ model User {
   role         UserRole
   provider     AuthProvider
   providerId   String?
+  verified     Boolean?      @default(false)
 
   isActive     Boolean      @default(true)
   createdAt    DateTime     @default(now())
@@ -45,3 +46,24 @@ model User {
   @@unique([provider, providerId])
 }
 
+/* =======================
+   Emailotp
+======================= */
+model EmailOtp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+
+
+/* BlacklistedToken */
+
+model BlacklistedToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+}

@@ -7,17 +7,22 @@ import { AuthController } from './auth.controller';
 import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../prisma/prisma.service';
+import { LocalStrategy } from './local.strategy';
+import { RolesGuard } from './guard/roles.guard';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    ConfigModule,
+    MailModule,
+    PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '7d' },
-      }),
       inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' },
+      }),
     }),
   ],
   controllers: [AuthController],
@@ -26,7 +31,9 @@ import { PrismaService } from '../prisma/prisma.service';
     GoogleStrategy,
     JwtStrategy,
     PrismaService,
+    LocalStrategy,
+    RolesGuard,
   ],
-  exports: [JwtModule, PassportModule]
+  exports: [JwtModule, PassportModule,RolesGuard]
 })
 export class AuthModule { }
