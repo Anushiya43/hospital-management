@@ -28,7 +28,7 @@ export class AuthService {
           email: googleUser.email,
           provider: 'GOOGLE',
           providerId: googleUser.providerId,
-          role: UserRole.PATIENT,
+          role: googleUser.role || UserRole.PATIENT,
         },
       });
     }
@@ -36,15 +36,14 @@ export class AuthService {
     return this.generateToken(user)    
   }
 
-  async updateRole(id : number,role : UserRole ){
+  
+
+  async updateRole(userId : number,role : UserRole ){
+
+    console.log(userId)
     return this.prisma.user.update({
-      where : {
-        id,
-      }
-      ,
-      data :{
-        role,
-      }
+      where : {id : userId,},
+      data :{role,}
     })
   }
 
@@ -182,3 +181,4 @@ export class AuthService {
     return this.prisma.user.findMany()
   }
 }
+

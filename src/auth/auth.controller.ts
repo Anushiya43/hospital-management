@@ -1,15 +1,13 @@
-import { Controller, Get, Param, Patch, Post, Query, Req, UseGuards ,Body, UnauthorizedException} from '@nestjs/common';
+import { Controller, Get, Patch, Post, Query, Req, UseGuards ,Body, UnauthorizedException} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { UserRole } from 'src/generated/prisma/enums';
 import { JwtAuthGuard } from './guard/jwtAuth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { RolesGuard } from './guard/roles.guard';
 import { Roles } from './roles.decorator'; 
 import { SendEmailOtpDto } from './dto/send-email-otp.dto';
 import { VerifyEmailOtpDto } from './dto/verify-email-otp.dto';
-
 
 @Controller('auth')
 export class AuthController {
@@ -26,16 +24,17 @@ export class AuthController {
     return this.authService.googleLogin(req.user);
   }
 
+  
+  @Patch('roleChange')
   @UseGuards(JwtAuthGuard)
-  @Patch('roleChange/:id')
-  async updateRole(@Param('id') id : string , @Query('role') role : UserRole){
-    return this.authService.updateRole(+id,role)
+  async updateRole(@Req() req , @Query('role') role : UserRole){
+    console.log(req)
+    return this.authService.updateRole(req.user.sub,role)
   }
 
       // Email + password
     @Post('register')
     register(@Body() dto: RegisterDto) {
-      console.log("8888888888888")
     return this.authService.register(dto);
     }
 
