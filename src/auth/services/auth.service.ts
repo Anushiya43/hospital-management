@@ -109,6 +109,17 @@ export class AuthService {
   /* register */
    async register(dto: RegisterDto) {
 
+    
+    const verifyemail =await this.prisma.emailOtp.findFirst({
+      where : {email :dto.email,},
+      orderBy:{ createdAt:"desc"}
+    })
+
+    if (!verifyemail?.verified){
+      throw new BadRequestException("Email doesn't verified");
+    }
+
+
     const u = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -116,6 +127,7 @@ export class AuthService {
     if (dto.password !== dto.conformPassword) {
         throw new BadRequestException('Passwords do not match');
     }
+
 
 
     if (u) {
