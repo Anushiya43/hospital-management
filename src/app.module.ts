@@ -7,13 +7,20 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
+  imports: [
+    ConfigModule.forRoot({
       isGlobal: true,
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    HelloModule,PrismaModule, UserModule,AuthModule],
+    HelloModule,
+    PrismaModule,
+    UserModule,
+    AuthModule,
+    MailModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
