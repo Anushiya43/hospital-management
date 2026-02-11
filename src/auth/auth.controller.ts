@@ -13,9 +13,13 @@ import { VerifyEmailOtpDto } from './dto/verify-email-otp.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Get('google')
+  @Get('google/patient')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {}
+  async googlePatientLogin() {}
+
+  @Get('google/doctor')
+  @UseGuards(AuthGuard('google'))
+  async googleDoctorLogin() {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -54,6 +58,7 @@ export class AuthController {
     }
 
       //logout
+    @Get("logout")
     @UseGuards(JwtAuthGuard)
     async logout(@Req() req: Request) {
       const authHeader = req.headers['authorization'];

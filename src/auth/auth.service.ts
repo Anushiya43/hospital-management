@@ -22,13 +22,23 @@ export class AuthService {
     });
     
 
-    if (!user) {
+    if (!user && googleUser.role === 'patient') {
       user = await this.prisma.user.create({
         data: {
           email: googleUser.email,
           provider: 'GOOGLE',
           providerId: googleUser.providerId,
-          role: googleUser.role || UserRole.PATIENT,
+          role:UserRole.PATIENT,
+        },
+      });
+    }
+    else{
+      user = await this.prisma.user.create({
+        data: {
+          email: googleUser.email,
+          provider: 'GOOGLE',
+          providerId: googleUser.providerId,
+          role:UserRole.DOCTOR,
         },
       });
     }
@@ -49,6 +59,20 @@ export class AuthService {
 
    // Register (email + password)
   async register(dto: RegisterDto) {
+    const verifyemail = await this.prisma.emailOtp.findFirst({
+      where : {
+        email : dto.email
+      },
+      orderBy :{
+        createdAt : "desc"
+      }
+    })
+
+    console.log(verifyemail)
+
+    if (verifyemail?.verified !== true){
+      throw new BadRequestException("Email should be verified")
+    }
 
     const u = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -70,6 +94,7 @@ export class AuthService {
         passwordHash: hashedPassword,
         role: dto.role ?? 'PATIENT',
         provider: 'LOCAL',
+        verified: true
       },
     });
 
@@ -106,16 +131,17 @@ export class AuthService {
     if (!isValid) throw new UnauthorizedException('Invalid OTP');
     console.log(record)
 
-    const user = await this.prisma.user.findUnique({
+    const verifyemail = await this.prisma.emailOtp.findFirst({
         where: { email },
+        orderBy:{createdAt:'desc'}
       });
 
-      if (!user) {
+      if (!verifyemail) {
         throw new BadRequestException('User not found');
       }
 
-    await this.prisma.user.update({
-      where: { email, },
+    await this.prisma.emailOtp.update({
+      where: { id : verifyemail.id, },
       data: { verified: true },
     });
 
