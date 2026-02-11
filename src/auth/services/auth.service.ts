@@ -1,0 +1,105 @@
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UserRole } from '../../generated/prisma/enums';
+import * as bcrypt from 'bcrypt';
+import { MailService } from '../../mail/mail.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private mailService: MailService,
+  ) {}
+
+  /* google login */
+
+  async googleLogin(googleUser: any) {
+    let user = await this.prisma.user.findUnique({
+      where: { email: googleUser.email },
+    });
+    console.log(googleUser)
+    if (!user) {
+      // Create user if they don't exist
+      const role =
+        googleUser.role === 'DOCTOR' ? UserRole.DOCTOR : UserRole.PATIENT;
+      user = await this.prisma.user.create({
+        data: {
+          email: googleUser.email,
+          provider: 'GOOGLE',
+          providerId: googleUser.providerId,
+          role: role,
+        },
+      });
+    }
+
+    const token = this.jwtService.sign({
+      sub: user.id.toString(), // Use database ID for sub
+      email: user.email,
+      role: user.role,
+    });
+
+    return {
+      access_token: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  }
+
+  /* send email otp */
+
+  async sendEmailOtp(email: string) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    await this.prisma.emailOtp.create({
+      data: {
+        email,
+        otp: otpHash,
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+      },
+    });
+    await this.mailService.sendOtp(email, otp);
+
+    return { message: 'OTP sent to email' };
+  }
+
+  async verifyEmailOtp(email: string, otp: string) {
+    const record = await this.prisma.emailOtp.findFirst({
+      where: { email },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!record) throw new UnauthorizedException('OTP not found');
+    if (record.expiresAt < new Date())
+      throw new UnauthorizedException('OTP expired');
+    const isValid = await bcrypt.compare(otp, record.otp);
+    console.log(isValid);
+    if (!isValid) throw new UnauthorizedException('Invalid OTP');
+    console.log(record);
+
+    const verifyemail = await this.prisma.emailOtp.findFirst({
+      where: { email },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!verifyemail) {
+      throw new BadRequestException('User not found');
+    }
+
+    await this.prisma.emailOtp.update({
+      where: { id: verifyemail.id },
+      data: { verified: true },
+    });
+
+    return { message: 'Email verified successfully' };
+  }
+}
