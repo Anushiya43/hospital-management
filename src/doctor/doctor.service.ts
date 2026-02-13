@@ -15,7 +15,6 @@ export class DoctorService {
       userId,
       fullName: createDoctorDto.fullName,
       specialization: createDoctorDto.specialization,
-      qualification: createDoctorDto.qualification,
       experienceYears: createDoctorDto.experienceYears
       } 
     });

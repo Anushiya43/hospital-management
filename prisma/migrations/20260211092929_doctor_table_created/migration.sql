@@ -4,7 +4,6 @@ CREATE TABLE "Doctor" (
     "userId" INTEGER NOT NULL,
     "fullName" TEXT NOT NULL,
     "specialization" TEXT[],
-    "qualification" TEXT[],
     "experienceYears" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

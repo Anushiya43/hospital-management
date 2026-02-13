@@ -82,7 +82,6 @@ model Doctor {
   userId          Int      @unique
   fullName        String
   specialization  String[]
-  qualification   String[]
   experienceYears Int
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
