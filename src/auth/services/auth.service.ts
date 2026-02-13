@@ -8,6 +8,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole } from '../../generated/prisma/enums';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../../mail/mail.service';
+import { RegisterDto } from '../dto/register.dto';
+import { LoginDto } from '../dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -101,5 +103,101 @@ export class AuthService {
     });
 
     return { message: 'Email verified successfully' };
+  }
+
+
+  /* register */
+   async register(dto: RegisterDto) {
+
+    
+    const verifyemail =await this.prisma.emailOtp.findFirst({
+      where : {email :dto.email,},
+      orderBy:{ createdAt:"desc"}
+    })
+
+    if (!verifyemail?.verified){
+      throw new BadRequestException("Email doesn't verified");
+    }
+
+
+    const u = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (dto.password !== dto.conformPassword) {
+        throw new BadRequestException('Passwords do not match');
+    }
+
+
+
+    if (u) {
+      throw new BadRequestException('already created');
+    }
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        passwordHash: hashedPassword,
+        role: dto.role ?? 'PATIENT',
+        provider: 'LOCAL',
+      },
+    });
+     return user
+    
+  }
+
+   async login(dto: LoginDto) {
+    console.log('.........................................')
+    console.log(dto)
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isValid = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
+
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return this.generateToken(user);
+  }
+
+  private generateToken(user: any) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };  
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: payload,
+    };
+  }
+
+  async logout(token: string) {
+
+    const decoded = this.jwtService.decode(token) as any;
+
+    if (!decoded || !decoded.exp) {
+      throw new Error('Invalid token');
+    }
+
+    await this.prisma.blacklistedToken.create({
+      data: {
+        token,
+        expiresAt: new Date(decoded.exp * 1000),
+      },
+    });
+
+    return { message: 'Logged out successfully' };
   }
 }

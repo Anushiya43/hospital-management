@@ -14,18 +14,30 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET') || 'default-secret',
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: payload.email },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException();
+   async validate(req: Request, payload: any) {
+    // Extract token from the current request
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      throw new UnauthorizedException('No token provided');
     }
+    
+    const token = authHeader.replace('Bearer ', '');
 
-    return user;
-  }
+    // Check if token is blacklisted
+    const isBlacklisted = await this.prisma.blacklistedToken.findUnique({
+      where: { token },
+    });
+
+    if (isBlacklisted) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+    return {
+      ...payload,
+      token, // Optionally include token in the payload
+    };
+   }
 }
