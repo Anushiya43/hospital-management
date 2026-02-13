@@ -4,8 +4,6 @@ export class CreateDoctorDto {
 
     specialization: string[];
 
-    qualification: string[];
-
     experienceYears: number;
 
 }

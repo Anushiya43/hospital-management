@@ -5,7 +5,6 @@ CREATE TABLE "Doctor" (
     "fullName" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "specialization" TEXT NOT NULL,
-    "qualification" TEXT NOT NULL,
     "experienceYears" INTEGER NOT NULL,
     "licenseNumber" TEXT NOT NULL,
     "consultationFee" DOUBLE PRECISION NOT NULL,
