@@ -25,9 +25,9 @@ export class DoctorService {
     return this.prisma.doctor.findMany()
   }
 
-  findOne(id: number) {
-    return this.prisma.doctor.findFirst({
-      where:{doctorId :id,},
+  findOne(userId: number) {
+    return this.prisma.doctor.findUnique({
+      where:{userId,},
   });
   }
 
