@@ -5,7 +5,6 @@ import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.gurd';
 
 
-
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
@@ -22,10 +21,9 @@ export class DoctorController {
     return this.doctorService.findAll();
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  findOne(@Req() req) {
-    return this.doctorService.findOne(req.user.sub);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.doctorService.findOne(+id);
   }
 
   @Patch("profile")

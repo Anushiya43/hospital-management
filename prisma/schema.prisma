@@ -14,6 +14,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
 
 enum UserRole {
   ADMIN
@@ -42,8 +47,8 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  doctor       Doctor?
-  patient      Patient?
+  doctor    Doctor?
+  patient   Patient?
 
   @@unique([provider, providerId])
 }
@@ -71,12 +76,6 @@ model BlacklistedToken {
   expiresAt DateTime
 }
 
-
-
-
-/* =======================
-   Doctor
-======================= */
 model Doctor {
   doctorId        Int      @id @default(autoincrement())
   userId          Int      @unique
@@ -87,20 +86,7 @@ model Doctor {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  availability  DoctorAvailability[]
-
   user User @relation(fields: [userId], references: [id])
-}
-
-
-/* =======================
-   Patient
-======================= */
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
 }
 
 model Patient {
@@ -113,44 +99,5 @@ model Patient {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
-/* =======================
-  DoctorAvailability
-======================= */
-
-enum DayOfWeek {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
-model DoctorAvailability {
-  id           Int      @id @default(autoincrement())
-  doctorId     Int
-
-  dayOfWeek    DayOfWeek[]
-
-  /// 24-hour format, e.g., '13:00' for 1pm
-  startTime    String
-  /// 24-hour format, e.g., '16:00' for 4pm
-  endTime      String
-  slotDuration Int
-  maxCount     Int
-
-  isActive     Boolean  @default(true)
-
-  location    String?
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  doctor       Doctor   @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
-
-}
-
