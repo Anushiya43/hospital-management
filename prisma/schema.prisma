@@ -136,7 +136,9 @@ model DoctorAvailability {
 
   dayOfWeek    DayOfWeek[]
 
+  /// 24-hour format, e.g., '13:00' for 1pm
   startTime    String
+  /// 24-hour format, e.g., '16:00' for 4pm
   endTime      String
   slotDuration Int
   maxCount     Int
@@ -147,4 +149,6 @@ model DoctorAvailability {
   updatedAt    DateTime @updatedAt
 
   doctor       Doctor   @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
+
 }
+
