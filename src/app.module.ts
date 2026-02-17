@@ -10,6 +10,8 @@ import { PassportModule } from '@nestjs/passport';
 import { MailModule } from './mail/mail.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PatientModule } from './patient/patient.module';
+import { AvailableExceptionModule } from './available-exception/available-exception.module';
+import { SlotModule } from './slot/slot.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { PatientModule } from './patient/patient.module';
     MailModule,
     DoctorModule,
     PatientModule,
+    AvailableExceptionModule,
+    SlotModule,
   ],
   controllers: [AppController],
   providers: [AppService],
