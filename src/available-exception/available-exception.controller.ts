@@ -3,18 +3,17 @@ import { AvailableExceptionService } from './available-exception.service';
 import { CreateAvailableExceptionDto } from './dto/create-available-exception.dto';
 import { UpdateAvailableExceptionDto } from './dto/update-available-exception.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.gurd';
-import { use } from 'passport';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('available-exception')
 @UseGuards(JwtAuthGuard)
 @Roles('DOCTOR')
 export class AvailableExceptionController {
-  constructor(private readonly availableExceptionService: AvailableExceptionService) {}
+  constructor(private readonly availableExceptionService: AvailableExceptionService) { }
 
   @Post()
-  create(@Req() req,@Body() createAvailableExceptionDto: CreateAvailableExceptionDto) {
-    return this.availableExceptionService.create(req.user.sub,createAvailableExceptionDto);
+  create(@Req() req, @Body() createAvailableExceptionDto: CreateAvailableExceptionDto) {
+    return this.availableExceptionService.create(+req.user.sub, createAvailableExceptionDto);
   }
 
   @Get('month')
@@ -37,6 +36,7 @@ export class AvailableExceptionController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAvailableExceptionDto: UpdateAvailableExceptionDto) {
+    console.log(updateAvailableExceptionDto)
     return this.availableExceptionService.update(+id, updateAvailableExceptionDto);
   }
 

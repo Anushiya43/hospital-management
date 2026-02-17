@@ -87,8 +87,9 @@ model Doctor {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  availability  DoctorAvailability[]
-  availabilityException DoctorAvailabilityException[]
+  availability    DoctorAvailability[]
+  availabilityException   DoctorAvailabilityException[]
+  appoinment      Appointment[]
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -113,6 +114,7 @@ model Patient {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  appoinment Appointment[]
 
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -169,8 +171,33 @@ model DoctorAvailabilityException {
   type      AvailabilityExceptionType
   reason    String?
 
+  startTime String?
+  endTime   String?
+  slotDuration Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   doctor Doctor @relation(fields: [doctorId], references: [doctorId],onDelete: Cascade)
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CANCELLED
+  COMPLETED
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  doctorId  Int
+  patientId Int
+
+  date      DateTime
+  startTime String
+  endTime   String
+
+  status    AppointmentStatus
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor Doctor @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
 }
