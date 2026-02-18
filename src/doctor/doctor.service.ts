@@ -6,18 +6,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class DoctorService {
   constructor(
-    private prisma : PrismaService
-  ){}
-  create(userId:number,createDoctorDto: CreateDoctorDto) {
+    private prisma: PrismaService
+  ) { }
+  create(userId: number, createDoctorDto: CreateDoctorDto) {
     return this.prisma.doctor.create(
-     { data :
       {
-      userId,
-      fullName: createDoctorDto.fullName,
-      specialization: createDoctorDto.specialization,
-      experienceYears: createDoctorDto.experienceYears
-      } 
-    });
+        data:
+        {
+          userId,
+          fullName: createDoctorDto.fullName,
+          specialization: createDoctorDto.specialization,
+          experienceYears: createDoctorDto.experienceYears
+        }
+      });
   }
 
   findAll() {
@@ -26,30 +27,30 @@ export class DoctorService {
 
   findOne(userId: number) {
     return this.prisma.doctor.findUnique({
-      where:{userId,},
-  });
+      where: { userId, },
+    });
   }
 
   update(userId: number, updateDoctorDto: UpdateDoctorDto) {
     console.log(updateDoctorDto)
     return this.prisma.doctor.update({
-      where : {userId : userId},
-      data : updateDoctorDto
+      where: { userId: userId },
+      data: updateDoctorDto
     })
   }
 
   async remove(userId: number) {
-  const doctor = await this.prisma.doctor.findUnique({
-    where: { userId },
-  });
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { userId },
+    });
 
-  if (!doctor) {
-    throw new NotFoundException('Doctor profile not found');
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    return this.prisma.doctor.delete({
+      where: { userId },
+    });
   }
-
-  return this.prisma.doctor.delete({
-    where: { userId },
-  });
-}
 
 }

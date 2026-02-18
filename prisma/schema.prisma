@@ -5,15 +5,14 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
-
 
 enum UserRole {
   ADMIN
@@ -26,32 +25,35 @@ enum AuthProvider {
   LOCAL
 }
 
-/* =======================
-   USER
-======================= */
+/**
+ * =======================
+ * USER
+ * =======================
+ */
 model User {
   id           Int          @id @default(autoincrement())
   email        String?      @unique
   phone        String?      @unique
-  passwordHash String?      // null for OAuth users
+  passwordHash String? // null for OAuth users
   role         UserRole
   provider     AuthProvider
   providerId   String?
 
-  isActive     Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  doctor       Doctor?
-  patient      Patient?
+  doctor  Doctor?
+  patient Patient?
 
   @@unique([provider, providerId])
 }
 
-
-/* =======================
-   Emailotp
-======================= */
+/**
+ * =======================
+ * Emailotp
+ * =======================
+ */
 model EmailOtp {
   id        Int      @id @default(autoincrement())
   email     String
@@ -61,9 +63,9 @@ model EmailOtp {
   createdAt DateTime @default(now())
 }
 
-
-
-/* BlacklistedToken */
+/**
+ * BlacklistedToken
+ */
 
 model BlacklistedToken {
   id        Int      @id @default(autoincrement())
@@ -71,12 +73,11 @@ model BlacklistedToken {
   expiresAt DateTime
 }
 
-
-
-
-/* =======================
-   Doctor
-======================= */
+/**
+ * =======================
+ * Doctor
+ * =======================
+ */
 model Doctor {
   doctorId        Int      @id @default(autoincrement())
   userId          Int      @unique
@@ -88,15 +89,16 @@ model Doctor {
   updatedAt       DateTime @updatedAt
 
   availability  DoctorAvailability[]
-  availabilityException DoctorAvailabilityException[]
+  customAvailability CustomAvailability[]
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
-/* =======================
-   Patient
-======================= */
+/**
+ * =======================
+ * Patient
+ * =======================
+ */
 
 enum Gender {
   MALE
@@ -105,21 +107,23 @@ enum Gender {
 }
 
 model Patient {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
   fullName  String
   gender    Gender?
   birthDate DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-/* =======================
-  DoctorAvailability
-======================= */
+/**
+ * =======================
+ * DoctorAvailability
+ * =======================
+ */
 
 enum DayOfWeek {
   MONDAY
@@ -132,11 +136,10 @@ enum DayOfWeek {
 }
 
 model DoctorAvailability {
-  id           Int      @id @default(autoincrement())
-  doctorId     Int
+  id       Int @id @default(autoincrement())
+  doctorId Int
 
   dayOfWeek    DayOfWeek[]
-
   /// 24-hour format, e.g., '13:00' for 1pm
   startTime    String
   /// 24-hour format, e.g., '16:00' for 4pm
@@ -144,33 +147,40 @@ model DoctorAvailability {
   slotDuration Int
   maxCount     Int
 
-  isActive     Boolean  @default(true)
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  doctor       Doctor   @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
-
-}
-
-enum AvailabilityExceptionType {
-  UNAVAILABLE
-  AVAILABLE
-}
-
-
-model DoctorAvailabilityException {
-  id        Int      @id @default(autoincrement())
-  doctorId  Int
-
-  startDate DateTime
-  endDate   DateTime?
-
-  type      AvailabilityExceptionType
-  reason    String?
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  doctor Doctor @relation(fields: [doctorId], references: [doctorId],onDelete: Cascade)
+  doctor Doctor @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
+}
+
+
+
+enum ScheduleType {
+  WAVE
+  STREAM
+}
+enum availabilityStatus{
+  AVAILABLE
+  UNAVAILABLE
+}
+model CustomAvailability {
+  id       Int @id @default(autoincrement())
+  doctorId Int
+
+  date         DateTime
+  scheduleType ScheduleType
+  status       availabilityStatus
+  reason       String?
+
+  startTime    String?
+  endTime      String?
+  slotDuration Int?
+  maxCount     Int     @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor Doctor @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
 }

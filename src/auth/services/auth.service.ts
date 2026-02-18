@@ -108,7 +108,7 @@ export class AuthService {
 
   /* register */
    async register(dto: RegisterDto) {
-
+    console.log(dto)
     
     const verifyemail =await this.prisma.emailOtp.findFirst({
       where : {email :dto.email,},
