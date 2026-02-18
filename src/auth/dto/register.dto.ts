@@ -12,5 +12,6 @@ export class RegisterDto {
     @IsNotEmpty()
     conformPassword: string;
 
+    @IsNotEmpty()
     role?: UserRole;
 }

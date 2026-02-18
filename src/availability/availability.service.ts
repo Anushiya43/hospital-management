@@ -11,9 +11,13 @@ export class AvailabilityService {
     where: { userId },
   });
 
-  if (!doctor) {
-    throw new NotFoundException('Doctor not found');
-  }
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+    if (!dto.startTime || !dto.endTime) {
+       throw new BadRequestException("Invalid time");
+    }
+
 
   const overlapping = await this.prisma.doctorAvailability.findFirst({
     where: {

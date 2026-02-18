@@ -14,6 +14,7 @@ export class DoctorController {
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Req() req, @Body() createDoctorDto: CreateDoctorDto) {
+    console.log(createDoctorDto)
     return this.doctorService.create(req.user.sub,createDoctorDto);
   }
 

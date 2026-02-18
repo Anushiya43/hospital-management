@@ -1,10 +1,9 @@
-import { Controller, Post, Get, Delete, Body, Param, Req, UseGuards, Patch, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Req, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { AvailabilityService } from './availability.service';
 import { CreateAvailabilityDto } from './dto/create-availability.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.gurd';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { UpdateAvailabilityDto } from './dto/update-availability.dto';
 
 
 @Controller('availability')
