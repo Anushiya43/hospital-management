@@ -8,22 +8,22 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.gurd';
 
 @Controller('doctor')
 export class DoctorController {
-  constructor(private readonly doctorService: DoctorService) {}
+  constructor(private readonly doctorService: DoctorService) { }
 
-  
+
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Req() req, @Body() createDoctorDto: CreateDoctorDto) {
     console.log(createDoctorDto)
-    return this.doctorService.create(req.user.sub,createDoctorDto);
+    return this.doctorService.create(req.user.sub, createDoctorDto);
   }
 
-  @Get()
+  @Get('list')
   findAll() {
     return this.doctorService.findAll();
   }
 
-  @Get()
+  @Get('profile')
   @UseGuards(JwtAuthGuard)
   findOne(@Req() req) {
     return this.doctorService.findOne(req.user.sub);

@@ -18,13 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-   async validate(req: Request, payload: any) {
+  async validate(req: Request, payload: any) {
     // Extract token from the current request
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
       throw new UnauthorizedException('No token provided');
     }
-    
+
     const token = authHeader.replace('Bearer ', '');
 
     // Check if token is blacklisted
@@ -37,7 +37,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     return {
       ...payload,
+      sub: Number(payload.sub),
       token, // Optionally include token in the payload
     };
-   }
+  }
 }

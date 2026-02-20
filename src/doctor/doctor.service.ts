@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -8,17 +8,26 @@ export class DoctorService {
   constructor(
     private prisma: PrismaService
   ) { }
-  create(userId: number, createDoctorDto: CreateDoctorDto) {
-    return this.prisma.doctor.create(
-      {
-        data:
-        {
+  async create(userId: number, createDoctorDto: CreateDoctorDto) {
+    try {
+      return await this.prisma.doctor.create({
+        data: {
           userId,
           fullName: createDoctorDto.fullName,
           specialization: createDoctorDto.specialization,
-          experienceYears: createDoctorDto.experienceYears
-        }
+          experienceYears: createDoctorDto.experienceYears,
+        },
       });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Doctor profile already exists for this user');
+      }
+      if (error.code === 'P2003') {
+        throw new BadRequestException('User account not found. Please ensure you are logged in with a valid user.');
+      }
+      console.error('Error creating doctor profile:', error);
+      throw error;
+    }
   }
 
   findAll() {

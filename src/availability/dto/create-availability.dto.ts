@@ -1,5 +1,5 @@
 import { DayOfWeek, ScheduleType } from "src/generated/prisma/enums"
-import { IsArray, ArrayNotEmpty, IsEnum, IsString, Matches, IsInt, Min } from 'class-validator'
+import { IsArray, ArrayNotEmpty, IsEnum, IsString, Matches, IsInt, Min, IsOptional } from 'class-validator'
 import { Transform } from 'class-transformer'
 
 const TIME_REGEX = /^(?:[01]\d|2[0-3]):[0-5]\d$/
@@ -28,9 +28,13 @@ export class CreateAvailabilityDto {
 
 	@IsInt()
 	@Min(1)
-	slotDuration: number;
+	@IsOptional()
+	slotDuration?: number;
 
 	@IsInt()
 	@Min(1)
 	maxCount: number;
+
+	@IsEnum(ScheduleType)
+	scheduleType?: ScheduleType;
 }
