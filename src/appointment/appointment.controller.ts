@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGua
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentStatusDto } from './dto/update-appointment-status.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.gurd';
 
 @Controller('appointments')
@@ -43,6 +44,16 @@ export class AppointmentController {
     @Delete(':id/cancel')
     cancel(@Req() req, @Param('id', ParseIntPipe) id: number) {
         return this.appointmentService.cancelAppointment(req.user.sub, id);
+    }
+
+    @Patch(':id/reschedule')
+    @UseGuards(JwtAuthGuard)
+    reschedule(
+        @Req() req,
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: RescheduleAppointmentDto,
+    ) {
+        return this.appointmentService.rescheduleAppointment(req.user.sub, id, dto);
     }
 
     @Patch(':id/status')

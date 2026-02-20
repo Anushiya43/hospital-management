@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 import { AppointmentStatus, ScheduleType } from 'src/generated/prisma/enums';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -217,6 +218,45 @@ export class AppointmentService {
         return this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: AppointmentStatus.CANCELED },
+        });
+    }
+
+    async rescheduleAppointment(userId: number, appointmentId: number, dto: RescheduleAppointmentDto) {
+        const appointment = await this.prisma.appointment.findUnique({
+            where: { id: appointmentId },
+            include: { patient: true },
+        });
+
+        if (!appointment) {
+            throw new NotFoundException('Appointment not found');
+        }
+
+        if (appointment.patient?.userId !== userId) {
+            throw new UnauthorizedException('You do not have permission to reschedule this appointment');
+        }
+
+        if (appointment.status !== AppointmentStatus.UPCOMING) {
+            throw new BadRequestException('Only upcoming appointments can be rescheduled');
+        }
+
+        const targetDate = new Date(dto.date);
+        targetDate.setHours(0, 0, 0, 0);
+
+        // Verify slot availability
+        const slots = await this.getAvailableSlots(appointment.doctorId, dto.date);
+        const validSlot = slots.find(s => s.startTime === dto.startTime && s.endTime === dto.endTime);
+
+        if (!validSlot) {
+            throw new BadRequestException('The selected slot is no longer available');
+        }
+
+        return this.prisma.appointment.update({
+            where: { id: appointmentId },
+            data: {
+                date: targetDate,
+                startTime: dto.startTime,
+                endTime: dto.endTime,
+            },
         });
     }
 

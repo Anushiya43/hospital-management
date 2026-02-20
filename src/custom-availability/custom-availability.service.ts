@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { CreateCustomAvailabilityDto } from './dto/create-custom-availability.dto';
 import { UpdateCustomAvailabilityDto } from './dto/update-custom-availability.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ScheduleType } from 'src/generated/prisma/enums';
 
 @Injectable()
 export class CustomAvailabilityService {
@@ -65,7 +66,7 @@ export class CustomAvailabilityService {
       data: {
         doctorId: doctor.doctorId,
         date: targetDate,
-        scheduleType: dto.scheduleType,
+        scheduleType: dto.scheduleType || ScheduleType.STREAM,
         status: dto.status,
         reason: dto.reason,
         startTime: dto.startTime,

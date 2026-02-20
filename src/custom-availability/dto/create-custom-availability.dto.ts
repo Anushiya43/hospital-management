@@ -5,8 +5,9 @@ export class CreateCustomAvailabilityDto {
     @IsString()
     date: string; // Will be converted to Date
 
+    @IsOptional()
     @IsEnum(ScheduleType)
-    scheduleType: ScheduleType;
+    scheduleType?: ScheduleType;
 
     @IsEnum(AvailabilityStatus)
     status: AvailabilityStatus;
