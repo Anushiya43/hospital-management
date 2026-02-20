@@ -17,7 +17,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   /* google login */
 
@@ -38,6 +38,15 @@ export class AuthService {
           role: role,
         },
       });
+
+      if (user.role === UserRole.PATIENT) {
+        await this.prisma.patient.create({
+          data: {
+            userId: user.id,
+            fullName: googleUser.firstName ? `${googleUser.firstName} ${googleUser.lastName}` : googleUser.email.split('@')[0],
+          },
+        });
+      }
     }
 
     const token = this.jwtService.sign({
@@ -48,11 +57,6 @@ export class AuthService {
 
     return {
       access_token: token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
     };
   }
 
@@ -107,15 +111,15 @@ export class AuthService {
 
 
   /* register */
-   async register(dto: RegisterDto) {
+  async register(dto: RegisterDto) {
     console.log(dto)
-    
-    const verifyemail =await this.prisma.emailOtp.findFirst({
-      where : {email :dto.email,},
-      orderBy:{ createdAt:"desc"}
+
+    const verifyemail = await this.prisma.emailOtp.findFirst({
+      where: { email: dto.email, },
+      orderBy: { createdAt: "desc" }
     })
 
-    if (!verifyemail?.verified){
+    if (!verifyemail?.verified) {
       throw new BadRequestException("Email doesn't verified");
     }
 
@@ -125,7 +129,7 @@ export class AuthService {
     });
 
     if (dto.password !== dto.conformPassword) {
-        throw new BadRequestException('Passwords do not match');
+      throw new BadRequestException('Passwords do not match');
     }
 
 
@@ -143,11 +147,21 @@ export class AuthService {
         provider: 'LOCAL',
       },
     });
-     return user
-    
+
+    if (user.role === UserRole.PATIENT) {
+      await this.prisma.patient.create({
+        data: {
+          userId: user.id,
+          fullName: dto.fullName || (user.email ? user.email.split('@')[0] : 'Patient'), // Fallback to email username if fullName not provided
+        },
+      });
+    }
+
+    return user
+
   }
 
-   async login(dto: LoginDto) {
+  async login(dto: LoginDto) {
     console.log('.........................................')
     console.log(dto)
     const user = await this.prisma.user.findUnique({
@@ -175,7 +189,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
-    };  
+    };
 
     return {
       access_token: this.jwtService.sign(payload),

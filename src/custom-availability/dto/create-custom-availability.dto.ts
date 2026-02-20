@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { ScheduleType, availabilityStatus } from "../../generated/prisma/enums"
+import { ScheduleType, AvailabilityStatus } from "../../generated/prisma/enums"
 
 export class CreateCustomAvailabilityDto {
     @IsString()
@@ -8,8 +8,8 @@ export class CreateCustomAvailabilityDto {
     @IsEnum(ScheduleType)
     scheduleType: ScheduleType;
 
-    @IsEnum(availabilityStatus)
-    status: availabilityStatus;
+    @IsEnum(AvailabilityStatus)
+    status: AvailabilityStatus;
 
     @IsOptional()
     @IsString()

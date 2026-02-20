@@ -20,10 +20,13 @@ import { RolesGuard } from './guards/roles.guard';
     MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '7d' },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const expiresIn = configService.get<string>('JWT_EXPIRATION');
+        return {
+          secret: configService.get<string>('JWT_SECRET'),
+          signOptions: expiresIn && expiresIn !== 'never' ? { expiresIn: expiresIn as any } : {},
+        };
+      },
       inject: [ConfigService],
     }),
   ],
