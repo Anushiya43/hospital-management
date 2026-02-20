@@ -88,8 +88,9 @@ model Doctor {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  availability  DoctorAvailability[]
+  availability       DoctorAvailability[]
   customAvailability CustomAvailability[]
+  appointments       Appointment[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -113,8 +114,10 @@ model Patient {
   gender    Gender?
   birthDate DateTime?
 
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Appointment[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -135,16 +138,21 @@ enum DayOfWeek {
   SUNDAY
 }
 
-model DoctorAvailability {
-  id       Int @id @default(autoincrement())
-  doctorId Int
+enum ScheduleType {
+  WAVE
+  STREAM
+}
 
+model DoctorAvailability {
+  id           Int          @id @default(autoincrement())
+  doctorId     Int
+  scheduleType ScheduleType @default(STREAM)
   dayOfWeek    DayOfWeek[]
   /// 24-hour format, e.g., '13:00' for 1pm
   startTime    String
   /// 24-hour format, e.g., '16:00' for 4pm
   endTime      String
-  slotDuration Int
+  slotDuration Int?
   maxCount     Int
 
   isActive Boolean @default(true)
@@ -155,32 +163,50 @@ model DoctorAvailability {
   doctor Doctor @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
 }
 
-
-
-enum ScheduleType {
-  WAVE
-  STREAM
-}
-enum availabilityStatus{
+enum AvailabilityStatus {
   AVAILABLE
   UNAVAILABLE
 }
+
 model CustomAvailability {
   id       Int @id @default(autoincrement())
   doctorId Int
 
-  date         DateTime
-  scheduleType ScheduleType
-  status       availabilityStatus
-  reason       String?
+  date   DateTime
+  status AvailabilityStatus
+  reason String?
 
   startTime    String?
   endTime      String?
+  scheduleType ScheduleType @default(STREAM)
   slotDuration Int?
-  maxCount     Int     @default(1)
+  maxCount     Int          @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   doctor Doctor @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
+}
+
+enum AppointmentStatus {
+  UPCOMING
+  COMPLETED
+  CANCELED
+}
+
+model Appointment {
+  id        Int               @id @default(autoincrement())
+  patientId Int
+  doctorId  Int
+  date      DateTime
+  startTime String // HH:mm
+  endTime   String // HH:mm
+  type      ScheduleType
+  status    AppointmentStatus @default(UPCOMING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  Doctor  @relation(fields: [doctorId], references: [doctorId], onDelete: Cascade)
 }

@@ -97,7 +97,7 @@ export class CustomAvailabilityService {
     return exception;
   }
 
-  
+
   async deleteException(exceptionId: number) {
     const exception = await this.prisma.customAvailability.findUnique({
       where: { id: exceptionId },
@@ -105,6 +105,38 @@ export class CustomAvailabilityService {
 
     if (!exception) {
       throw new NotFoundException('Exception not found');
+    }
+
+    // Check for booked appointments on this specific date
+    const bookedAppointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId: exception.doctorId,
+        date: exception.date,
+        status: 'UPCOMING',
+      },
+    });
+
+    let conflictingAppointment: any = null;
+
+    if (exception.startTime && exception.endTime) {
+      const start = exception.startTime;
+      const end = exception.endTime;
+      // If it's a specific time range, check for overlap
+      conflictingAppointment = bookedAppointments.find((app) => {
+        return (
+          app.startTime < end && app.endTime > start
+        );
+      });
+    } else {
+      // If no startTime, it usually means full day UNAVAILABLE or full day override
+      // But let's check if there are ANY appointments on that day
+      conflictingAppointment = bookedAppointments[0];
+    }
+
+    if (conflictingAppointment) {
+      throw new BadRequestException(
+        'Cannot delete custom availability because appointments are already booked for this period.',
+      );
     }
 
     return this.prisma.customAvailability.delete({
