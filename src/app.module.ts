@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PatientModule } from './patient/patient.module';
 import { CustomAvailabilityModule } from './custom-availability/custom-availability.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CustomAvailabilityModule } from './custom-availability/custom-availabil
     DoctorModule,
     PatientModule,
     CustomAvailabilityModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
