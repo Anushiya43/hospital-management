@@ -8,22 +8,17 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(private configService: ConfigService) {
-    const port = Number(this.configService.get<number>('MAIL_PORT'));
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: port,
-      secure: port === 465, // true for 465, false for other ports (like 587)
+      service: 'gmail',
       auth: {
         user: this.configService.get<string>('MAIL_USER'),
         pass: this.configService.get<string>('MAIL_PASS'),
       },
       // Timeout settings for better reliability on cloud platforms
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      // Force IPv4 to avoid ENETUNREACH issues with IPv6 on some cloud networks
-      family: 4,
-    } as any);
+      connectionTimeout: 15000, // Increased to 15 seconds
+      greetingTimeout: 15000,
+      socketTimeout: 15000,
+    });
   }
 
   async sendOtp(email: string, otp: string) {
