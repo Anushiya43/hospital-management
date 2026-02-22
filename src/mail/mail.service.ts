@@ -1,41 +1,37 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
   private readonly logger = new Logger(MailService.name);
 
   constructor(private configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'),
-      },
-      // Timeout settings for better reliability on cloud platforms
-      connectionTimeout: 15000, // Increased to 15 seconds
-      greetingTimeout: 15000,
-      socketTimeout: 15000,
-    });
+    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
   }
 
   async sendOtp(email: string, otp: string) {
-    const mailOptions = {
-      from: this.configService.get<string>('MAIL_FROM'),
-      to: email,
-      subject: 'Your Verification Code',
-      text: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
-      html: `<b>Your OTP is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
-    };
+    const from = this.configService.get<string>('MAIL_FROM') || 'onboarding@resend.dev';
 
     try {
-      const info = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Email sent: ${info.messageId}`);
-      return info;
+      const { data, error } = await this.resend.emails.send({
+        from: from,
+        to: email,
+        subject: 'Your Verification Code',
+        text: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
+        html: `<b>Your OTP is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
+      });
+
+      if (error) {
+        this.logger.error(`Resend error sending email to ${email}:`, error);
+        throw error;
+      }
+
+      this.logger.log(`Email sent successfully: ${data?.id}`);
+      return data;
     } catch (error) {
-      this.logger.error(`Error sending email to ${email}:`, error.stack);
+      this.logger.error(`Error sending email to ${email}:`, error.message);
       throw error;
     }
   }

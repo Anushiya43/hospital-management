@@ -1,6 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
+import { Resend } from 'resend';
+
+jest.mock('resend', () => {
+  return {
+    Resend: jest.fn().mockImplementation(() => {
+      return {
+        emails: {
+          send: jest.fn().mockResolvedValue({ data: { id: 'test-id' }, error: null }),
+        },
+      };
+    }),
+  };
+});
 
 describe('MailService', () => {
   let service: MailService;
@@ -13,7 +26,7 @@ describe('MailService', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key: string) => {
-              if (key === 'MAIL_PORT') return 587;
+              if (key === 'RESEND_API_KEY') return 're_test';
               return key;
             }),
           },
