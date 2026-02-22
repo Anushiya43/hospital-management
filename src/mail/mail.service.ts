@@ -1,13 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(private configService: ConfigService) {
-    sgMail.setApiKey(this.configService.get<string>('SENDGRID_API_KEY') || '');
+    const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
+    if (apiKey) {
+      sgMail.setApiKey(apiKey);
+    } else {
+      this.logger.warn('SENDGRID_API_KEY is not defined');
+    }
   }
 
   async sendOtp(email: string, otp: string) {
