@@ -21,7 +21,9 @@ export class MailService {
       connectionTimeout: 10000, // 10 seconds
       greetingTimeout: 10000,
       socketTimeout: 10000,
-    });
+      // Force IPv4 to avoid ENETUNREACH issues with IPv6 on some cloud networks
+      family: 4,
+    } as any);
   }
 
   async sendOtp(email: string, otp: string) {
