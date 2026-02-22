@@ -1,37 +1,35 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class MailService {
-  private resend: Resend;
   private readonly logger = new Logger(MailService.name);
 
   constructor(private configService: ConfigService) {
-    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
+    sgMail.setApiKey(this.configService.get<string>('SENDGRID_API_KEY') || '');
   }
 
   async sendOtp(email: string, otp: string) {
-    const from = this.configService.get<string>('MAIL_FROM') || 'onboarding@resend.dev';
+    const from = this.configService.get<string>('MAIL_FROM') || 'anushiyavcse04@gmail.com';
+
+    const msg = {
+      to: email,
+      from: from,
+      subject: 'Your Verification Code',
+      text: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
+      html: `<b>Your OTP is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
+    };
 
     try {
-      const { data, error } = await this.resend.emails.send({
-        from: from,
-        to: email,
-        subject: 'Your Verification Code',
-        text: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
-        html: `<b>Your OTP is: ${otp}</b><p>It will expire in 10 minutes.</p>`,
-      });
-
-      if (error) {
-        this.logger.error(`Resend error sending email to ${email}:`, error);
-        throw error;
-      }
-
-      this.logger.log(`Email sent successfully: ${data?.id}`);
-      return data;
+      await sgMail.send(msg);
+      this.logger.log(`Email sent successfully to ${email}`);
+      return { success: true };
     } catch (error) {
       this.logger.error(`Error sending email to ${email}:`, error.message);
+      if (error.response) {
+        this.logger.error(error.response.body);
+      }
       throw error;
     }
   }

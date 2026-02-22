@@ -1,17 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
-import { Resend } from 'resend';
+import * as sgMail from '@sendgrid/mail';
 
-jest.mock('resend', () => {
+jest.mock('@sendgrid/mail', () => {
   return {
-    Resend: jest.fn().mockImplementation(() => {
-      return {
-        emails: {
-          send: jest.fn().mockResolvedValue({ data: { id: 'test-id' }, error: null }),
-        },
-      };
-    }),
+    setApiKey: jest.fn(),
+    send: jest.fn().mockResolvedValue([{ statusCode: 202 }, {}]),
   };
 });
 
@@ -26,7 +21,7 @@ describe('MailService', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key: string) => {
-              if (key === 'RESEND_API_KEY') return 're_test';
+              if (key === 'SENDGRID_API_KEY') return 'SG.test';
               return key;
             }),
           },
