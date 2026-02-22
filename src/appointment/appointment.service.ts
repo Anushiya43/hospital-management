@@ -135,6 +135,15 @@ export class AppointmentService {
         const targetDate = new Date(dto.date);
         targetDate.setHours(0, 0, 0, 0);
 
+        // Prevent booking for past date/time
+        const [startHour, startMin] = dto.startTime.split(':').map(Number);
+        const appointmentStart = new Date(dto.date);
+        appointmentStart.setHours(startHour, startMin, 0, 0);
+        const now = new Date();
+        if (appointmentStart <= now) {
+            throw new BadRequestException('Cannot book an appointment in the past');
+        }
+
         // Verify slot availability (simplified check)
         const slots = await this.getAvailableSlots(dto.doctorId, dto.date);
         const validSlot = slots.find(s => s.startTime === dto.startTime && s.endTime === dto.endTime);
@@ -241,6 +250,15 @@ export class AppointmentService {
 
         const targetDate = new Date(dto.date);
         targetDate.setHours(0, 0, 0, 0);
+
+        // Prevent rescheduling to a past date/time
+        const [startHour, startMin] = dto.startTime.split(':').map(Number);
+        const newStart = new Date(dto.date);
+        newStart.setHours(startHour, startMin, 0, 0);
+        const now = new Date();
+        if (newStart <= now) {
+            throw new BadRequestException('Cannot reschedule an appointment to a past date/time');
+        }
 
         // Verify slot availability
         const slots = await this.getAvailableSlots(appointment.doctorId, dto.date);

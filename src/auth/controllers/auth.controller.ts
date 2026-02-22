@@ -31,12 +31,12 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req: any, @Res() res: any) {
     console.log('GOOGLE USER:', req.user);
-
+    console.log(req.user)
     const result = await this.authService.googleLogin(req.user);
-
+    console.log(result)
     // Construct redirect URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const redirectUrl = `${frontendUrl}/auth/callback?token=${result.access_token}`;
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}&role=${result.user.role}&email=${result.user.email}`;
 
     return res.redirect(redirectUrl);
   }

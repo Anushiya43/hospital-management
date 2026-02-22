@@ -39,25 +39,29 @@ export class AuthService {
         },
       });
 
-      if (user.role === UserRole.PATIENT) {
+      // Create profile (Patient or Doctor)
+      const fullName = `${googleUser.firstName || ''} ${googleUser.lastName || ''}`.trim() || (googleUser.email ? googleUser.email.split('@')[0] : 'User');
+
+      if (role === UserRole.PATIENT) {
         await this.prisma.patient.create({
           data: {
             userId: user.id,
-            fullName: googleUser.firstName ? `${googleUser.firstName} ${googleUser.lastName}` : googleUser.email.split('@')[0],
+            fullName: fullName,
+          },
+        });
+      } else if (role === UserRole.DOCTOR) {
+        await this.prisma.doctor.create({
+          data: {
+            userId: user.id,
+            fullName: fullName,
+            experienceYears: 0,
+            specialization: [],
           },
         });
       }
+      console.log('Created user and profile:', user);
     }
-
-    const token = this.jwtService.sign({
-      sub: user.id.toString(), // Use database ID for sub
-      email: user.email,
-      role: user.role,
-    });
-
-    return {
-      access_token: token,
-    };
+    return this.generateToken(user);
   }
 
   /* send email otp */
