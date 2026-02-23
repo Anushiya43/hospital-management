@@ -1,0 +1,27 @@
+{
+    "id": "f5b3e6c2-4a7e-5d9f-b2c3-d4e5f6a7b8c9",
+    "name": "Hospital Management - Production",
+    "values": [
+        {
+            "key": "baseUrl",
+            "value": "https://hospital-management-production-d115.up.railway.app/api/v1",
+            "type": "text",
+            "enabled": true
+        },
+        {
+            "key": "doctorToken",
+            "value": "",
+            "type": "text",
+            "enabled": true
+        },
+        {
+            "key": "patientToken",
+            "value": "",
+            "type": "text",
+            "enabled": true
+        }
+    ],
+    "_postman_variable_scope": "environment",
+    "_postman_exported_at": "2026-02-23T14:30:00.000Z",
+    "_postman_exported_using": "Postman/10.0.0"
+}

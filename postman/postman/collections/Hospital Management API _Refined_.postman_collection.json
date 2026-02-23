@@ -1,0 +1,1154 @@
+{
+  "info": {
+    "_postman_id": "df793e5e-c25a-4552-961f-fe2bfd0aa268",
+    "name": "Hospital Management API (Refined)",
+    "description": "Refined API collection with role-based tokens and granular availability test cases.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send Email OTP",
+          "id": "ade87e40-0069-4a8f-80e0-f113f524472e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/send-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "send-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email OTP",
+          "id": "2cfee03d-14f4-441e-a239-518c20f9825a",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "verify-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "id": "66947c05-613c-48a7-a39c-be4bdab9754a",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"doctor@example.com\",\n    \"password\": \"password123\",\n    \"conformPassword\": \"password123\",\n    \"role\": \"DOCTOR\",\n    \"fullName\": \"Dr. John Doe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Doctor Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.environment.set(\"doctorToken\", jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "id": "5c3591cb-a7c0-413f-bf43-683f4daa2d14"
+              }
+            }
+          ],
+          "id": "f51736c4-6ec0-40bd-9204-61995a6f350f",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"doctor@example.com\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patient Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.environment.set(\"patientToken\", jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "id": "c87b1ee0-62fc-4a2d-b2a8-2e6a1600416f"
+              }
+            }
+          ],
+          "id": "29919d33-f5c6-45d7-a2cd-f17f3847d8b7",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"patient@example.com\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "id": "579a97ac-8fa8-42ec-b9c3-5c1b1225d91f",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "google-auth-signup",
+          "id": "d88f73a4-5813-452c-bc1e-02a542261862",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "hospital-management-production-d115.up.railway.app/api/v1/auth/google/doctor",
+              "host": [
+                "hospital-management-production-d115",
+                "up",
+                "railway",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                "doctor"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "ee2d2dbb-140d-4303-87c8-9b51fd36f394"
+    },
+    {
+      "name": "Appointment",
+      "item": [
+        {
+          "name": "Search Doctors",
+          "id": "5d4fdfba-a240-41da-b002-f9ff1af911c5",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/search-doctors?query=John",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "search-doctors"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "John"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Slots",
+          "id": "0fcb518b-3646-4eb4-adb2-7582ce36c34e",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/available-slots?doctorId=1&date=2024-03-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "available-slots"
+              ],
+              "query": [
+                {
+                  "key": "doctorId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2024-03-01"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Book Appointment",
+          "id": "ec25c75f-92ef-40d7-b7f6-618b8772297e",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"doctorId\": 1,\n    \"date\": \"2024-03-01\",\n    \"startTime\": \"10:00\",\n    \"endTime\": \"10:30\",\n    \"type\": \"STREAM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/book",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "book"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Appointments (Patient)",
+          "id": "c3bc1125-f7d9-4d49-8953-063b8b8ca4eb",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/my-appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "my-appointments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Doctor Appointments",
+          "id": "c2c3732a-0bf7-4c5d-9720-71c6a099519d",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/doctor-appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "doctor-appointments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Appointment",
+          "id": "1b7a6948-9925-4575-93b3-0b646983c9b9",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "1",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reschedule Appointment",
+          "id": "62a79e28-098a-42b2-aaa9-c12c8efb4f55",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"date\": \"2024-03-02\",\n    \"startTime\": \"11:00\",\n    \"endTime\": \"11:30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1/reschedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "1",
+                "reschedule"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment Status (Doctor)",
+          "id": "bf18f420-e2cd-481e-bb7b-38e967ce426b",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"COMPLETED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "1",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "5249eeb5-3447-4c20-bea5-fee637cb5dfa"
+    },
+    {
+      "name": "Doctor",
+      "item": [
+        {
+          "name": "Create/Update Doctor Profile",
+          "id": "33363ee1-512a-4186-8fdf-b3340bd842d5",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"Dr. Jane Smith\",\n    \"specialization\": [\"Cardiology\", \"Internal Medicine\"],\n    \"experienceYears\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/doctor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Doctor List",
+          "id": "07bbcf99-5d04-47c2-9290-0d1f4974d5f7",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Doctor Profile",
+          "id": "ba3905b3-ba70-4436-b52f-daac3f219132",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Doctor Profile",
+          "id": "62843b0b-9eaf-416a-9c31-8f36a4c2143c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"experienceYears\": 11\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/doctor/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "7c21ae19-8a2b-463e-b900-a11f0300dd2a"
+    },
+    {
+      "name": "Patient",
+      "item": [
+        {
+          "name": "Create Patient Profile",
+          "id": "5b84b810-247a-4b43-8655-4fbdd4dffd18",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"Alice Brown\",\n    \"gender\": \"FEMALE\",\n    \"birthDate\": \"1995-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Patient List",
+          "id": "1198a520-6178-40f5-8be6-118dfd02ef54",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Patient Profile",
+          "id": "05acf2ed-cc42-495c-b445-c2b337d3ed25",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Patient Profile",
+          "id": "3c3c1e7b-ffe7-4a1f-ae1b-b70a7fc9f49a",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"Alice J. Brown\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient/profile-update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "profile-update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "21b50cbf-232e-456e-b0b9-8a1d44d52581"
+    },
+    {
+      "name": "Availability",
+      "item": [
+        {
+          "name": "Create Recurring Availability (STREAM)",
+          "id": "2684af90-5d3a-414c-8914-256898eb2bc1",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dayOfWeek\": [\"MONDAY\", \"WEDNESDAY\"],\n    \"startTime\": \"09:00\",\n    \"endTime\": \"12:00\",\n    \"maxCount\": 2,\n    \"scheduleType\": \"STREAM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Recurring Availability (WAVE)",
+          "id": "38b15e9f-4a58-446e-964f-f61198b0a5e6",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dayOfWeek\": [\"TUESDAY\", \"THURSDAY\"],\n    \"startTime\": \"14:00\",\n    \"endTime\": \"17:00\",\n    \"slotDuration\": 30,\n    \"maxCount\": 5,\n    \"scheduleType\": \"WAVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Availability",
+          "id": "6cb7f7f5-50c7-4b68-96d5-c855e16861da",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Availability",
+          "id": "322ebac3-732e-43a6-8827-15e705ae4a06",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "587136af-ede7-4837-b439-d2b349cd3738"
+    },
+    {
+      "name": "Custom Availability",
+      "item": [
+        {
+          "name": "Create Custom Availability (AVAILABLE - STREAM)",
+          "id": "5d457ff7-27a7-4aea-8485-16d011f49c37",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"date\": \"2024-03-15\",\n    \"status\": \"AVAILABLE\",\n    \"scheduleType\": \"STREAM\",\n    \"startTime\": \"08:00\",\n    \"endTime\": \"10:00\",\n    \"maxCount\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Availability (AVAILABLE - WAVE)",
+          "id": "4cc80c90-2dc5-419c-be34-849aaa22bf21",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"date\": \"2024-03-16\",\n    \"status\": \"AVAILABLE\",\n    \"scheduleType\": \"WAVE\",\n    \"startTime\": \"13:00\",\n    \"endTime\": \"15:00\",\n    \"slotDuration\": 30,\n    \"maxCount\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Availability (UNAVAILABLE)",
+          "id": "2547e0ba-390c-48c2-a0de-0319cf0f774f",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"date\": \"2024-03-17\",\n    \"status\": \"UNAVAILABLE\",\n    \"reason\": \"Medical Leave\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Custom Availability (Month)",
+          "id": "cc0af1b2-3e4a-4e5b-a642-45babeef51db",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability/month?year=2024&month=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability",
+                "month"
+              ],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2024"
+                },
+                {
+                  "key": "month",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Custom Availability by ID",
+          "id": "a69c175b-1ade-4790-9f7d-e996173a8b13",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Custom Availability",
+          "id": "82af4da6-f34d-4231-b7dc-ccc3e94462e5",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/custom-availability/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "custom-availability",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4ac8e103-fc75-43c7-9394-64f243688270"
+    }
+  ],
+  "variable": [
+    {
+      "id": "db5851b3-14aa-4eef-be4c-371dbf75ec88",
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "id": "a1d71625-af4b-4ad4-8e1b-498d72be4755",
+      "key": "doctorToken",
+      "value": "YOUR_DOCTOR_TOKEN",
+      "type": "string"
+    },
+    {
+      "id": "ae309737-1b21-44fe-b401-ad2b30ff1b81",
+      "key": "patientToken",
+      "value": "YOUR_PATIENT_TOKEN",
+      "type": "string"
+    }
+  ]
+}
