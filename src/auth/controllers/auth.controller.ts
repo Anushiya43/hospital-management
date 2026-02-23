@@ -36,7 +36,7 @@ export class AuthController {
     console.log(result)
     // Construct redirect URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const redirectUrl = `${frontendUrl}/auth/callback?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}&role=${result.user.role}&email=${result.user.email}`;
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${encodeURIComponent(result.access_token)}&user=${encodeURIComponent(JSON.stringify(result.user))}&role=${result.user.role}&email=${result.user.email}`;
 
     return res.redirect(redirectUrl);
   }
