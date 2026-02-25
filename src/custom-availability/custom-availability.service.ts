@@ -62,6 +62,52 @@ export class CustomAvailabilityService {
       }
     }
 
+    // --- CHECK FOR CONFLICTING APPOINTMENTS ---
+    const bookedAppointments = await this.prisma.appointment.findMany({
+      where: {
+        doctorId: doctor.doctorId,
+        date: targetDate,
+        status: 'UPCOMING',
+      },
+    });
+
+    if (bookedAppointments.length > 0) {
+      if (dto.status === 'UNAVAILABLE') {
+        if (!dto.startTime) {
+          // Full day unavailable - conflict with any appointment
+          throw new BadRequestException(
+            `Cannot mark day as unavailable. ${bookedAppointments.length} appointment(s) already booked.`,
+          );
+        } else if (dto.startTime && dto.endTime) {
+          // Partial day unavailable - check for overlap
+          const start = dto.startTime;
+          const end = dto.endTime;
+          const conflict = bookedAppointments.find(
+            (app) => app.startTime < end && app.endTime > start,
+          );
+          if (conflict) {
+            throw new BadRequestException(
+              `Cannot mark this period as unavailable. An appointment is already booked at ${conflict.startTime}.`,
+            );
+          }
+        }
+      } else if (dto.status === 'AVAILABLE') {
+        // Restricted hours - check if any appointment falls outside the new range
+        if (dto.startTime && dto.endTime) {
+          const start = dto.startTime;
+          const end = dto.endTime;
+          const outside = bookedAppointments.find(
+            (app) => app.startTime < start || app.endTime > end,
+          );
+          if (outside) {
+            throw new BadRequestException(
+              `New hours [${start} - ${end}] conflict with an existing appointment at ${outside.startTime}.`,
+            );
+          }
+        }
+      }
+    }
+
     return this.prisma.customAvailability.create({
       data: {
         doctorId: doctor.doctorId,

@@ -8,10 +8,45 @@ export class ElasticSchedulingService {
     constructor(private prisma: PrismaService) { }
 
     async createElasticSlot(doctorId: number, dto: CreateElasticSlotDto) {
+        const targetDate = new Date(dto.date);
+        targetDate.setHours(0, 0, 0, 0);
+
+        // Check for overlapping elastic slots
+        const overlapping = await this.prisma.elasticSlot.findFirst({
+            where: {
+                doctorId,
+                date: targetDate,
+                OR: [
+                    {
+                        AND: [
+                            { startTime: { lte: dto.startTime } },
+                            { endTime: { gt: dto.startTime } },
+                        ],
+                    },
+                    {
+                        AND: [
+                            { startTime: { lt: dto.endTime } },
+                            { endTime: { gte: dto.endTime } },
+                        ],
+                    },
+                    {
+                        AND: [
+                            { startTime: { gte: dto.startTime } },
+                            { endTime: { lte: dto.endTime } },
+                        ],
+                    },
+                ],
+            },
+        });
+
+        if (overlapping) {
+            throw new BadRequestException('Overlap detected with an existing elastic slot.');
+        }
+
         return this.prisma.elasticSlot.create({
             data: {
                 doctorId,
-                date: new Date(dto.date),
+                date: targetDate,
                 startTime: dto.startTime,
                 endTime: dto.endTime,
                 maxCount: dto.maxCount,
