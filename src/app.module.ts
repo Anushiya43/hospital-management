@@ -12,6 +12,7 @@ import { DoctorModule } from './doctor/doctor.module';
 import { PatientModule } from './patient/patient.module';
 import { CustomAvailabilityModule } from './custom-availability/custom-availability.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { ElasticSchedulingModule } from './elastic-scheduling/elastic-scheduling.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AppointmentModule } from './appointment/appointment.module';
     PatientModule,
     CustomAvailabilityModule,
     AppointmentModule,
+    ElasticSchedulingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

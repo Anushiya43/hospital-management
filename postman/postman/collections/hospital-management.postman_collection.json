@@ -188,9 +188,36 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "google-sign-up",
+          "id": "974a6f0a-5a59-4bca-8fcc-b323ed7d5eb7",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/auth/google/doctor",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                "doctor"
+              ]
+            }
+          },
+          "response": []
         }
       ],
-      "id": "8a9a6d6d-132c-466a-ac0c-4b1ff07de95a"
+      "id": "8a9a6d6d-132c-466a-ac0c-4b1ff07de95a",
+      "auth": {
+        "type": "bearer"
+      }
     },
     {
       "name": "doctor",
@@ -199,10 +226,27 @@
           "name": "doctors",
           "id": "48b7f887-e2cd-47c1-afe8-80ad25f3b039",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{Base-Url}}/doctor/profile",
+              "host": [
+                "{{Base-Url}}"
+              ],
+              "path": [
+                "doctor",
+                "profile"
+              ]
             }
           },
           "response": []
@@ -312,7 +356,17 @@
           "response": []
         }
       ],
-      "id": "4f015ef9-6277-4cb7-8595-74b233653035"
+      "id": "4f015ef9-6277-4cb7-8595-74b233653035",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{doctorToken}}",
+            "type": "string"
+          }
+        ]
+      }
     },
     {
       "name": "patient",
@@ -421,10 +475,27 @@
           "name": "find-one",
           "id": "f075808a-9541-4a4b-84f5-4e128369fb81",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{Base-Url}}/patient/profile",
+              "host": [
+                "{{Base-Url}}"
+              ],
+              "path": [
+                "patient",
+                "profile"
+              ]
             }
           },
           "response": []
@@ -451,10 +522,27 @@
           "name": "get-availability",
           "id": "1e45ce1f-3527-4303-baa3-c03e90a9c5d7",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{Base-Url}}/availability/",
+              "host": [
+                "{{Base-Url}}"
+              ],
+              "path": [
+                "availability",
+                ""
+              ]
             }
           },
           "response": []
@@ -477,7 +565,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"dayOfWeek\": \"SUNDAY\",\r\n    \"startTime\": \"10: 00\",\r\n    \"endTime\": \"12: 00\"\r\n}",
+              "raw": "{\r\n    \"dayOfWeek\": [\"MONDAY\",\"TUESDAY\",\"WEDNESDAY\",\"THURSDAY\",\r\n        \"FRIDAY\"\r\n    ],\r\n    \"startTime\": \"09:00\",\r\n    \"endTime\": \"12:00\",\r\n    \"maxCount\": 7,\r\n    \"scheduleType\": \"STREAM\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -485,12 +573,13 @@
               }
             },
             "url": {
-              "raw": "{{Base-Url}}/availability",
+              "raw": "{{Base-Url}}/availability/",
               "host": [
                 "{{Base-Url}}"
               ],
               "path": [
-                "availability"
+                "availability",
+                ""
               ]
             }
           },
@@ -505,7 +594,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{access-token}}",
+                  "value": "{{doctorToken}}",
                   "type": "string"
                 }
               ]
@@ -514,7 +603,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"dayOfWeek\": \"SUNDAY\",\r\n    \"startTime\": \"10: 00\",\r\n    \"endTime\": \"12: 00\"\r\n}",
+              "raw": "{\r\n    \"dayOfWeek\": [\"SUNDAY\"],\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"slotDuration\": 30,\r\n    \"maxCount\": 5,\r\n    \"scheduleType\": \"WAVE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -522,12 +611,13 @@
               }
             },
             "url": {
-              "raw": "{{Base-Url}}/availability",
+              "raw": "{{Base-Url}}/availability/",
               "host": [
                 "{{Base-Url}}"
               ],
               "path": [
-                "availability"
+                "availability",
+                ""
               ]
             }
           },
@@ -570,6 +660,44 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "elastic-shedule",
+          "id": "4a2b7398-ec05-4bff-8297-083126d93a36",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctorToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"startTime\":\"09: 00\",\r\n    \"endTime\": \"12: 00\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Base-Url}}/availability/1",
+              "host": [
+                "{{Base-Url}}"
+              ],
+              "path": [
+                "availability",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ],
       "id": "87e4b4c4-8598-4dd2-b260-1fa527e4af98"
@@ -586,7 +714,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{access-token}}",
+                  "value": "{{doctorToken}}",
                   "type": "string"
                 }
               ]
@@ -595,7 +723,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"date\": \"2026-03-29\",\r\n  \"scheduleType\": \"STREAM\",\r\n  \"type\": \"AVAILABLE\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"12:00\",\r\n  \"slotDuration\": 30,\r\n  \"reason\": \"Special Sunday Clinic\"\r\n}",
+              "raw": "{\r\n  \"date\": \"2026-03-29\",\r\n  \"scheduleType\": \"STREAM\",\r\n  \"status\": \"AVAILABLE\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"12:00\",\r\n  \"slotDuration\": 30,\r\n  \"reason\": \"Special Sunday Clinic\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -669,7 +797,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"date\": \"2026-03-28\",\r\n  \"scheduleType\": \"STREAM\",\r\n  \"type\": \"AVAILABLE\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"12:00\",\r\n  \"maxCount\":10\r\n}",
+              "raw": "{\r\n  \"date\": \"2026-03-01\",\r\n  \"scheduleType\": \"STREAM\",\r\n  \"status\": \"AVAILABLE\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"12:00\",\r\n  \"maxCount\":10\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -775,9 +903,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/appointments/available-slots?doctorId=1&date=2024-03-20",
+              "raw": "{{Base-Url}}/appointments/available-slots?doctorId=2&date=2026-03-09",
               "host": [
-                "{{baseUrl}}"
+                "{{Base-Url}}"
               ],
               "path": [
                 "appointments",
@@ -786,13 +914,15 @@
               "query": [
                 {
                   "key": "doctorId",
-                  "value": "1",
-                  "description": "ID of the doctor"
+                  "value": "2",
+                  "description": "ID of the doctor",
+                  "uuid": "56a67b5a-d5e2-4b73-b47b-8cdf027b2fab"
                 },
                 {
                   "key": "date",
-                  "value": "2024-03-20",
-                  "description": "Date in YYYY-MM-DD format"
+                  "value": "2026-03-09",
+                  "description": "Date in YYYY-MM-DD format",
+                  "uuid": "2bea9601-5b1e-42da-ad79-cca4ff73bac0"
                 }
               ]
             }
@@ -803,6 +933,16 @@
           "name": "Book Appointment",
           "id": "fa2742ba-473b-412d-a853-d7b51c18e9e2",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -813,12 +953,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"doctorId\": 1,\n    \"date\": \"2024-03-20\",\n    \"startTime\": \"09:00\",\n    \"endTime\": \"09:30\",\n    \"type\": \"STREAM\"\n}"
+              "raw": "{\n    \"doctorId\": 1,\n    \"date\": \"2026-03-09\",\n    \"startTime\": \"09:00\",\n    \"endTime\": \"18:00\",\n    \"type\": \"STREAM\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/appointments/book",
+              "raw": "{{Base-Url}}/appointments/book",
               "host": [
-                "{{baseUrl}}"
+                "{{Base-Url}}"
               ],
               "path": [
                 "appointments",
