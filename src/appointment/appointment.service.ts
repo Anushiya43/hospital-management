@@ -66,6 +66,18 @@ export class AppointmentService {
             },
         });
 
+        // 4. Get Elastic Slots
+        const elasticSlots = await this.prisma.elasticSlot.findMany({
+            where: {
+                doctorId,
+                date: targetDate,
+                isActive: true,
+            },
+            include: {
+                allocations: true,
+            },
+        });
+
         const slots: any[] = [];
 
         for (const avail of availabilitySource) {
@@ -120,6 +132,22 @@ export class AppointmentService {
             }
         }
 
+        // Process Elastic Slots
+        for (const eSlot of elasticSlots) {
+            const bookedCount = eSlot.allocations.length;
+            if (bookedCount < eSlot.maxCount) {
+                slots.push({
+                    id: eSlot.id,
+                    startTime: eSlot.startTime,
+                    endTime: eSlot.endTime,
+                    type: ScheduleType.ELASTIC,
+                    availableCapacity: eSlot.maxCount - bookedCount,
+                    period: this.getPeriod(eSlot.startTime),
+                    isElastic: true,
+                });
+            }
+        }
+
         return slots;
     }
 
@@ -151,16 +179,40 @@ export class AppointmentService {
         if (!validSlot) {
             throw new BadRequestException('Slot is no longer available');
         }
-        return this.prisma.appointment.create({
-            data: {
-                patientId: patient.id,
-                doctorId: dto.doctorId,
-                date: targetDate,
-                startTime: dto.startTime,
-                endTime: dto.endTime,
-                type: dto.type,
-                status: AppointmentStatus.UPCOMING,
-            },
+
+        return await this.prisma.$transaction(async (tx) => {
+            const appointment = await tx.appointment.create({
+                data: {
+                    patientId: patient.id,
+                    doctorId: dto.doctorId,
+                    date: targetDate,
+                    startTime: dto.startTime,
+                    endTime: dto.endTime,
+                    type: dto.type,
+                    status: AppointmentStatus.UPCOMING,
+                },
+            });
+
+            if (dto.type === ScheduleType.ELASTIC && validSlot.isElastic) {
+                // Ensure the slot still has capacity within the transaction
+                const slot = await tx.elasticSlot.findUnique({
+                    where: { id: validSlot.id },
+                    include: { allocations: true },
+                });
+
+                if (!slot || !slot.isActive || slot.allocations.length >= slot.maxCount) {
+                    throw new BadRequestException('Elastic slot is no longer available');
+                }
+
+                await tx.slotAllocation.create({
+                    data: {
+                        appointmentId: appointment.id,
+                        elasticSlotId: validSlot.id,
+                    },
+                });
+            }
+
+            return appointment;
         });
     }
 
